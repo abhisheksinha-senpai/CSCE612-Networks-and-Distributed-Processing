@@ -330,3 +330,8 @@ void Socket::Display_Stats()
 
 	return;
 }
+
+bool isUnique()
+{
+
+}

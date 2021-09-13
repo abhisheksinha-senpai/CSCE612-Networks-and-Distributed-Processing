@@ -18,6 +18,9 @@ public:
 	int allocatedSize;								//bytes allocated for buffer
 	int curPos;										//current position in the buffer
 	int THRESHOLD;									//Threasholdbefore rellocating memory to the buffer
+	std::unordered_set<DWORD> seenIPs;
+	std::unordered_set<std::string> seenHosts;
+
 
 	char reqBuffer[MAX_URL_LEN] = {'\0'};
 	char hostName[MAX_HOST_LEN] = { '\0' };
@@ -33,5 +36,6 @@ public:
 	bool Get(char* str);							//GET Methods for URL
 	void HTMLfileParser(char* str);
 	void Display_Stats();
+	bool isUnique();
 };
 
