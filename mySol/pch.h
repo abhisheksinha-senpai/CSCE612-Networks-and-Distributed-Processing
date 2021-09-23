@@ -21,6 +21,4 @@
 #include "HTMLParserBase.h"
 #include "time.h"
 #include <iostream>
-#include <unordered_set>
-#include <string>
 #endif //PCH_H
