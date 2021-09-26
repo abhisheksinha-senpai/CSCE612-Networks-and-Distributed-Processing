@@ -14,6 +14,9 @@
 
 // add headers that you want to pre-compile here
 #pragma comment(lib, "Ws2_32.lib")
+
+using namespace std;
+
 #include <stdio.h>
 #include <windows.h>
 #include <stdlib.h>
@@ -21,4 +24,11 @@
 #include "HTMLParserBase.h"
 #include "time.h"
 #include <iostream>
+#include <ppl.h>
+#include <vector>
+#include <thread>
+#include <concurrent_queue.h>
+#include <winnt.h>
+#include <Windows.h>
+#include <synchapi.h>
 #endif //PCH_H

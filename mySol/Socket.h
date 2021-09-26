@@ -7,12 +7,12 @@
 #include "pch.h"
 #include <unordered_set>
 #include <string>
+#include "Utilities.h"
 
 #define MAX_HOST_LEN		256
 #define MAX_URL_LEN			2048
 #define MAX_REQUEST_LEN		2048
 
-using namespace std;
 
 class Socket
 {
@@ -20,6 +20,7 @@ private:
 	bool queryPresent = false;
 	bool portPresent = false;
 	bool pathPresent = false;
+
 public:
 	unordered_set<DWORD> seenIPs;
 	unordered_set<string> seenHosts;
@@ -37,10 +38,12 @@ public:
 	char* query = NULL;
 
 	Socket();										//default Constructor
-	bool init_sock(const char* str, int x);				//Intialize socket
+	bool init_sock(const char* str, int x, volatile LONG* IPUnique);				//Intialize socket
 	bool Read(int flag);								//Read from the sokcet
 	bool Get(char* str, int flag, bool parse);					//GET Methods for URL
 	void HTMLfileParser(char* str);
 	void Display_Stats();
 	bool isUnique();
+
+	friend class Crawler;
 };

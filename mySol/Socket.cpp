@@ -35,7 +35,7 @@ bool Socket::Read(int flag)
 		clock_t time_req1 = clock();
 		if (((float)(time_req1 - time_req) / CLOCKS_PER_SEC) > 10.0)
 		{
-			printf("\t  Connection took more than 10 seconds while receving data\n");
+			//("\t  Connection took more than 10 seconds while receving data\n");
 			break;
 		}
 		// check to see readablility of sockets as of now
@@ -43,7 +43,7 @@ bool Socket::Read(int flag)
 			// new data available; now read the next segment
 			int bytes = recv(sock, buff + curPos, allocatedSize - curPos, 0);
 			if (bytes == SOCKET_ERROR) {
-				printf("\t  Loading... failed with:%d on recv\n", WSAGetLastError());
+				//printf("\t  Loading... failed with:%d on recv\n", WSAGetLastError());
 				break;
 			}
 			if (bytes == 0)
@@ -53,15 +53,15 @@ bool Socket::Read(int flag)
 				time_req = clock() - time_req;
 				if ((curPos) >= 2097152 && flag == 1)
 				{
-					printf("\t  Loading... failed with exceeding max\n");
+					//printf("\t  Loading... failed with exceeding max\n");
 					return false;
 				}
 				if ((curPos) >= 16384 && flag == 2)
 				{
-					printf("\t  Loading... failed with exceeding max\n");
+					//printf("\t  Loading... failed with exceeding max\n");
 					return false;
 				}
-				printf("\t  Loading... done in %3.1f ms with %d bytes\n", 1000 * (float)time_req / CLOCKS_PER_SEC, curPos);
+				//printf("\t  Loading... done in %3.1f ms with %d bytes\n", 1000 * (float)time_req / CLOCKS_PER_SEC, curPos);
 				return true; // normal completion
 			}
 			// adjust where the next recv goes
@@ -76,7 +76,7 @@ bool Socket::Read(int flag)
 				buff = (char*)realloc(buff, allocatedSize);
 				if (buff == NULL)
 				{
-					printf("\t  Not enough memory to allocate to the receive buffer\n");
+					//printf("\t  Not enough memory to allocate to the receive buffer\n");
 					break;
 				}
 			}
@@ -84,18 +84,18 @@ bool Socket::Read(int flag)
 		}
 		else if (ret == 0) {
 			// report timeout
-			printf("\t  Connection took more than 10 seconds while receving data\n");
+			//printf("\t  Connection took more than 10 seconds while receving data\n");
 			break;
 		}
 		else {
-			printf("\t  Connecting on page... failed wtih : %d\n", WSAGetLastError());
+			//printf("\t  Connecting on page... failed wtih : %d\n", WSAGetLastError());
 			break;
 		}
 	}
 	return false;
 }
 
-bool Socket::init_sock(const char* str, int x)
+bool Socket::init_sock(const char* str, int x, volatile LONG* IPUnique)
 {
 	WSADATA wsaData;
 
@@ -103,7 +103,7 @@ bool Socket::init_sock(const char* str, int x)
 
 	WORD wVersionRequested = MAKEWORD(2, 2);
 	if (WSAStartup(wVersionRequested, &wsaData) != 0) {
-		printf("\t  WSAStartup error %d\n", WSAGetLastError());
+		//printf("\t  WSAStartup error %d\n", WSAGetLastError());
 		WSACleanup();
 		return false;
 	}
@@ -112,7 +112,7 @@ bool Socket::init_sock(const char* str, int x)
 	sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	if (sock == INVALID_SOCKET)
 	{
-		printf("\t  socket() generated error %d\n", WSAGetLastError());
+		//printf("\t  socket() generated error %d\n", WSAGetLastError());
 		WSACleanup();
 		return false;
 	}
@@ -129,7 +129,7 @@ bool Socket::init_sock(const char* str, int x)
 
 	if ((remote = gethostbyname(str)) == NULL)
 	{
-		printf("\t  Doing DNS... failed with %d\n", WSAGetLastError());
+		//printf("\t  Doing DNS... failed with %d\n", WSAGetLastError());
 		return false;
 	}
 	else // take the first IP address and copy into sin_addr
@@ -139,17 +139,19 @@ bool Socket::init_sock(const char* str, int x)
 
 	if (x == 2)
 	{
-		printf("\t  Doing DNS ... done in %3.1f ms found %s\n", 1000 * (float)time_req / CLOCKS_PER_SEC, inet_ntoa(server.sin_addr));
+		//printf("\t  Doing DNS ... done in %3.1f ms found %s\n", 1000 * (float)time_req / CLOCKS_PER_SEC, inet_ntoa(server.sin_addr));
 
 		int prevSize = seenIPs.size();
 		seenIPs.insert(inet_addr(inet_ntoa(server.sin_addr)));
 		if (seenIPs.size() <= prevSize)
 		{
-			printf("\t  Checking IP uniqueness... failed\n");
+			//printf("\t  Checking IP uniqueness... failed\n");
+			 
+			InterlockedAdd(IPUnique, 1);
 			return false;
 		}
-		else
-			printf("\t  Checking IP uniqueness... passed\n");
+		//else
+			//printf("\t  Checking IP uniqueness... passed\n");
 	}
 
 	// setup the port # and protocol type
@@ -160,13 +162,13 @@ bool Socket::init_sock(const char* str, int x)
 	time_req = clock();
 	if (connect(sock, (struct sockaddr*)&server, sizeof(struct sockaddr_in)) == SOCKET_ERROR)
 	{
-		printf("\t  Connecting on page... failed wtih : %d\n", WSAGetLastError());
+		//printf("\t  Connecting on page... failed wtih : %d\n", WSAGetLastError());
 		return false;
 	}
 	if (x == 1)
 	{
 		time_req = clock() - time_req;
-		printf("\t* Connecting on page ... done in %3.1f ms\n", 1000 * (float)time_req / CLOCKS_PER_SEC);
+		//printf("\t* Connecting on page ... done in %3.1f ms\n", 1000 * (float)time_req / CLOCKS_PER_SEC);
 		send(sock, reqBuffer, strlen(reqBuffer), 0);
 		//printf("Successfully connected to %s (%s) on port %d\n", str, inet_ntoa(server.sin_addr), htons(server.sin_port));
 
@@ -174,7 +176,7 @@ bool Socket::init_sock(const char* str, int x)
 	if (x == 2)
 	{
 		time_req = clock() - time_req;
-		printf("\t* Connecting on robots ... done in %3.1f ms\n", 1000 * (float)time_req / CLOCKS_PER_SEC);
+		//printf("\t* Connecting on robots ... done in %3.1f ms\n", 1000 * (float)time_req / CLOCKS_PER_SEC);
 		send(sock, reqBuffer, strlen(reqBuffer), 0);
 	}
 
@@ -185,7 +187,7 @@ bool Socket::init_sock(const char* str, int x)
 	/*if (x == 1)
 	printf("\n%s\n", buff);*/
 
-	printf("\t  Verifying header... status code %.*s\n", 3, &buff[9]);
+	//printf("\t  Verifying header... status code %.*s\n", 3, &buff[9]);
 
 	return true;
 }
@@ -195,7 +197,7 @@ bool Socket::Get(char* str, int flag, bool parse)
 	int ret_status;
 	if (strncmp(str, "http://", 7) != 0)
 	{
-		printf("\t  Loading... failed with non-HTTP header\n");
+		//printf("\t  Loading... failed with non-HTTP header\n");
 		return false;
 	}
 	if (parse)
@@ -252,7 +254,7 @@ bool Socket::Get(char* str, int flag, bool parse)
 			//Check if the ports are in the limits
 			if ((strlen(port_pos) == 0) || (atoi(port_pos) <= 0 || atoi(port_pos) >= 65536))
 			{
-				printf("\t  Parsing URL... failed with invalid port\n");
+				//printf("\t  Parsing URL... failed with invalid port\n");
 				return false;
 			}
 		}
@@ -260,8 +262,8 @@ bool Socket::Get(char* str, int flag, bool parse)
 		//Extract host name
 		hostName = uni_ident + 3;
 
-		if (flag == 3)
-			printf("Parsing URL... host %s, port 80 \n", hostName);
+		//if (flag == 3)
+			//printf("Parsing URL... host %s, port 80 \n", hostName);
 	}
 
 	//Construct the return status
@@ -269,33 +271,31 @@ bool Socket::Get(char* str, int flag, bool parse)
 	{
 		if (queryPresent)
 			if (pathPresent)
-				ret_status = sprintf(reqBuffer, "HEAD /%s?%s HTTP/1.0\r\n\User-agent: myTAMUcrawler/1.0\r\nHost:%s\r\nConnection:close\r\n\r\n", pathpos, query, hostName);
+				ret_status = sprintf(reqBuffer, "HEAD /%s?%s HTTP/1.0\r\nUser-agent: myTAMUcrawler/1.0\r\nHost:%s\r\nConnection:close\r\n\r\n", pathpos, query, hostName);
 			else
-				ret_status = sprintf(reqBuffer, "HEAD /?%s HTTP/1.0\r\n\User-agent: myTAMUcrawler/1.0\r\nHost:%s\r\nConnection:close\r\n\r\n", query, hostName);
+				ret_status = sprintf(reqBuffer, "HEAD /?%s HTTP/1.0\r\nUser-agent: myTAMUcrawler/1.0\r\nHost:%s\r\nConnection:close\r\n\r\n", query, hostName);
 		else
 			if (pathPresent)
-				ret_status = sprintf(reqBuffer, "HEAD /%s HTTP/1.0\r\n\User-agent: myTAMUcrawler/1.0\r\nHost:%s\r\nConnection:close\r\n\r\n", pathpos, hostName);
+				ret_status = sprintf(reqBuffer, "HEAD /%s HTTP/1.0\r\nUser-agent: myTAMUcrawler/1.0\r\nHost:%s\r\nConnection:close\r\n\r\n", pathpos, hostName);
 			else
-				ret_status = sprintf(reqBuffer, "HEAD / HTTP/1.0\r\n\User-agent: myTAMUcrawler/1.0\r\nHost:%s\r\nConnection:close\r\n\r\n", hostName);
+				ret_status = sprintf(reqBuffer, "HEAD / HTTP/1.0\r\nUser-agent: myTAMUcrawler/1.0\r\nHost:%s\r\nConnection:close\r\n\r\n", hostName);
 
 	}
 	else if (flag == 2)
 	{
 		if (queryPresent)
 			if (pathPresent)
-				ret_status = sprintf(reqBuffer, "GET /%s?%s HTTP/1.0\r\n\User-agent: myTAMUcrawler/1.0\r\nHost:%s\r\nConnection:close\r\n\r\n", pathpos, query, hostName);
+				ret_status = sprintf(reqBuffer, "GET /%s?%s HTTP/1.0\r\nUser-agent: myTAMUcrawler/1.0\r\nHost:%s\r\nConnection:close\r\n\r\n", pathpos, query, hostName);
 			else
-				ret_status = sprintf(reqBuffer, "GET /?%s HTTP/1.0\r\n\User-agent: myTAMUcrawler/1.0\r\nHost:%s\r\nConnection:close\r\n\r\n", query, hostName);
+				ret_status = sprintf(reqBuffer, "GET /?%s HTTP/1.0\r\nUser-agent: myTAMUcrawler/1.0\r\nHost:%s\r\nConnection:close\r\n\r\n", query, hostName);
 		else
 			if (pathPresent)
-				ret_status = sprintf(reqBuffer, "GET /%s HTTP/1.0\r\n\User-agent: myTAMUcrawler/1.0\r\nHost:%s\r\nConnection:close\r\n\r\n", pathpos, hostName);
+				ret_status = sprintf(reqBuffer, "GET /%s HTTP/1.0\r\nUser-agent: myTAMUcrawler/1.0\r\nHost:%s\r\nConnection:close\r\n\r\n", pathpos, hostName);
 			else
-				ret_status = sprintf(reqBuffer, "GET / HTTP/1.0\r\n\User-agent: myTAMUcrawler/1.0\r\nHost:%s\r\nConnection:close\r\n\r\n", hostName);
+				ret_status = sprintf(reqBuffer, "GET / HTTP/1.0\r\nUser-agent: myTAMUcrawler/1.0\r\nHost:%s\r\nConnection:close\r\n\r\n", hostName);
 	}
 	else
-		ret_status = sprintf(reqBuffer, "GET /robots.txt HTTP/1.0\r\n\User-agent: myTAMUcrawler/1.0\r\nHost:%s\r\nConnection:close\r\n\r\n", hostName);
-
-	//ret_status = sprintf(reqBuffer, "HEAD%s/robots.txt HTTP/1.0\r\n\User-agent: myTAMUcrawler/1.0\r\nHost:%s\r\n Connection:close\r\n\r\n"," ");
+		ret_status = sprintf(reqBuffer, "GET /robots.txt HTTP/1.0\r\nUser-agent: myTAMUcrawler/1.0\r\nHost:%s\r\nConnection:close\r\n\r\n", hostName);
 
 	return true;
 }
@@ -311,7 +311,7 @@ void Socket::HTMLfileParser(char* str)
 	if (fPtr == NULL)
 	{
 		/* File not created hence exit */
-		printf("\t  Unable to create file.\n");
+		//printf("\t  Unable to create file.\n");
 		return;
 	}
 	char* retmsg = strstr(buff, "\r\n\r\n");
@@ -327,7 +327,7 @@ void Socket::HTMLfileParser(char* str)
 	// process errors
 	if (hFile == INVALID_HANDLE_VALUE)
 	{
-		printf("\t  CreateFile failed with %d\n", GetLastError());
+		//printf("\t  CreateFile failed with %d\n", GetLastError());
 		return;
 	}
 
@@ -337,7 +337,7 @@ void Socket::HTMLfileParser(char* str)
 	// process errors
 	if (bRet == 0)
 	{
-		printf("\t  GetFileSizeEx error %d\n", GetLastError());
+		//printf("\t  GetFileSizeEx error %d\n", GetLastError());
 		return;
 	}
 
@@ -351,7 +351,7 @@ void Socket::HTMLfileParser(char* str)
 	// process errors
 	if (bRet == 0 || bytesRead != fileSize)
 	{
-		printf("\t  ReadFile failed with %d\n", GetLastError());
+		//printf("\t  ReadFile failed with %d\n", GetLastError());
 		return;
 	}
 
@@ -373,7 +373,7 @@ void Socket::HTMLfileParser(char* str)
 		nLinks = 0;
 
 	time_req = clock() - time_req;
-	printf("\t+ Parsing page... done in %3.1f ms with %d links\n", 1000 * (float)time_req / CLOCKS_PER_SEC, nLinks);
+	//printf("\t+ Parsing page... done in %3.1f ms with %d links\n", 1000 * (float)time_req / CLOCKS_PER_SEC, nLinks);
 	//Display_Stats();
 
 	delete parser;		// this internally deletes linkBuffer
