@@ -161,7 +161,7 @@ bool Socket::init_sock(const char* str, int x, LPVOID pParam)
 			InterlockedAdd(&cr->http_check4, 1);
 			//cr->http_check4++;
 		else if (strncmp(&buff[9], "5", 1))
-			InterlockedAdd(&cr->http_check4, 1);
+			InterlockedAdd(&cr->http_check5, 1);
 			//cr->http_check5++;
 		else
 			InterlockedAdd(&cr->other, 1);
