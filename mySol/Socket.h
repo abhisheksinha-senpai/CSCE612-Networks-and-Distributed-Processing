@@ -24,6 +24,7 @@ private:
 public:
 	unordered_set<DWORD> seenIPs;
 	unordered_set<string> seenHosts;
+	unordered_set<string> DNSsuccess;
 	SOCKET sock;									//socket handle
 	char* buff;										//current buffer
 	int allocatedSize;								//bytes allocated for buffer
@@ -38,12 +39,7 @@ public:
 	char* query = NULL;
 
 	Socket();										//default Constructor
-	bool init_sock(const char* str, int x, volatile LONG* IPUnique);				//Intialize socket
+	bool init_sock(const char* str, int x, LPVOID pParam);				//Intialize socket
 	bool Read(int flag);								//Read from the sokcet
 	bool Get(char* str, int flag, bool parse);					//GET Methods for URL
-	void HTMLfileParser(char* str);
-	void Display_Stats();
-	bool isUnique();
-
-	friend class Crawler;
 };

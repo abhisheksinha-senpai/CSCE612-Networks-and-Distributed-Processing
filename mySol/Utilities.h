@@ -16,14 +16,21 @@ public:
 	LONG volatile DNSLookups = 0;
 	LONG volatile IPUnique = 0;
 	LONG volatile robot = 0;
-	LONG volatile http_check = 0;
+	LONG volatile http_check2 = 0;
+	LONG volatile http_check3 = 0;
+	LONG volatile http_check4 = 0;
+	LONG volatile http_check5 = 0;
+	LONG volatile other = 0;
 	LONG volatile total_link = 0;
+	LONG volatile dataBytes = 0;
+	LONG volatile QueueUsed = 0;
+	LONG volatile numberThreads = 0;
 	HANDLE	finished;
 	HANDLE	eventQuit;
-	void stats(long start_time);
-	void Initialize(char* str, int numThreads);
+	void Initialize(char* str);
 	bool Producer(char* fileName);
 };
 
-void Consumer(volatile LONG* nLinks, volatile LONG* Hostunique, volatile LONG* IPUnique);
+void Consumer(LPVOID pParam);
+void stats(LPVOID pParam);
 
