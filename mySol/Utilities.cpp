@@ -48,24 +48,60 @@ void Consumer(LPVOID pParam)
     while (1)
     {
         EnterCriticalSection(&lpCriticalSection);
-        InterlockedAdd(&cr->QueueUsed, queue_used);
-        InterlockedAdd(&cr->Hostunique, host_uni);
-        InterlockedAdd(&cr->dataBytes, dataBytes_used);
-        InterlockedAdd(&cr->nLinks, links);
-        
-        InterlockedAdd(&cr->DNSLookups, sk.DNSLooked);
-        InterlockedAdd(&cr->IPUnique, sk.IPLooked);
-        InterlockedAdd(&cr->robot, sk.robot_looked);
-        InterlockedAdd(&cr->http_check2, sk.http_check2);
-        InterlockedAdd(&cr->http_check3, sk.http_check3);
-        InterlockedAdd(&cr->http_check4, sk.http_check4);
-        InterlockedAdd(&cr->http_check5, sk.http_check5);
-        InterlockedAdd(&cr->other, sk.other);
+        if (Q.size() == 0)
+        {
+            /*InterlockedAdd(&cr->QueueUsed, queue_used);
+            InterlockedAdd(&cr->Hostunique, host_uni);
+            InterlockedAdd(&cr->dataBytes, dataBytes_used);
+            InterlockedAdd(&cr->nLinks, links);
+
+            InterlockedAdd(&cr->DNSLookups, sk.DNSLooked);
+            InterlockedAdd(&cr->IPUnique, sk.IPLooked);
+            InterlockedAdd(&cr->robot, sk.robot_looked);
+            InterlockedAdd(&cr->http_check2, sk.http_check2);
+            InterlockedAdd(&cr->http_check3, sk.http_check3);
+            InterlockedAdd(&cr->http_check4, sk.http_check4);
+            InterlockedAdd(&cr->http_check5, sk.http_check5);
+            InterlockedAdd(&cr->other, sk.other);*/
+
+            cr->QueueUsed += queue_used;
+            cr->Hostunique += host_uni;
+            cr->dataBytes += dataBytes_used;
+            cr->nLinks += links;
+
+            cr->DNSLookups += sk.DNSLooked;
+            cr->IPUnique += sk.IPLooked;
+            cr->robot += sk.robot_looked;
+            cr->http_check2 += sk.http_check2;
+            cr->http_check3 += sk.http_check3;
+            cr->http_check4 += sk.http_check4;
+            cr->http_check5 += sk.http_check5;
+            cr->other += sk.other;
+
+            SetEvent(cr->hEvent);
+            LeaveCriticalSection(&lpCriticalSection);
+            break;
+        }
+        cr->QueueUsed += queue_used;
+        cr->Hostunique += host_uni;
+        cr->dataBytes += dataBytes_used;
+        cr->nLinks += links;
+
+        cr->DNSLookups += sk.DNSLooked;
+        cr->IPUnique += sk.IPLooked;
+        cr->robot += sk.robot_looked;
+        cr->http_check2 += sk.http_check2;
+        cr->http_check3 += sk.http_check3;
+        cr->http_check4 += sk.http_check4;
+        cr->http_check5 += sk.http_check5;
+        cr->other += sk.other;
+
 
         queue_used = 0;
         dataBytes_used = 0;
         host_uni = 0;
         links = 0;
+
         sk.DNSLooked = 0;
         sk.IPLooked = 0;
         sk.robot_looked = 0;
@@ -74,59 +110,61 @@ void Consumer(LPVOID pParam)
         sk.http_check4 = 0;
         sk.http_check5 = 0;
         sk.other = 0;
-        if (Q.size() == 0)
+        queue<msg>temp;
+        int k = 0;
+        while (!Q.empty() && k < 50)
         {
-            SetEvent(cr->hEvent);
-            LeaveCriticalSection(&lpCriticalSection);
-            break;
+            temp.push(Q.front());
+            Q.pop();
+            k++;
         }
-        P = Q.front();
-        Q.pop();
-        if (P.URLName == NULL)
-        {
-            LeaveCriticalSection(&lpCriticalSection);
-            continue;
-        }
-       /* if (Q.try_pop(P))
-        {*/
         LeaveCriticalSection(&lpCriticalSection);
-        
-        //first get the robots, which means flag==3
-        bool next_mv = sk.Get(P.URLName, 3, true);
-        if (next_mv)
+        while (!temp.empty())
         {
-            queue_used++;
-            //cr->QueueUsed++;
-            int prevSize = sk.seenHosts.size();
-            sk.seenHosts.insert(sk.hostName);
-            if (sk.seenHosts.size() > prevSize && next_mv)
+            P = temp.front();
+            temp.pop();
+            if (P.URLName == NULL)
+                continue;
+            /* if (Q.try_pop(P))
+             {*/
+
+            //first get the robots, which means flag==3
+            bool next_mv = sk.Get(P.URLName, 3, true);
+            if (next_mv)
             {
-                host_uni++;
-                //cr->Hostunique++;
-                next_mv = sk.init_sock(sk.hostName, 2, pParam);
-                if (next_mv)
-                    next_mv = sk.Get(P.URLName, 2, false);
+                queue_used++;
+                //cr->QueueUsed++;
+                int prevSize = sk.seenHosts.size();
+                sk.seenHosts.insert(sk.hostName);
+                if (sk.seenHosts.size() > prevSize && next_mv)
+                {
+                    host_uni++;
+                    //cr->Hostunique++;
+                    next_mv = sk.init_sock(sk.hostName, 2, pParam);
+                    if (next_mv)
+                        next_mv = sk.Get(P.URLName, 2, false);
 
-                int prev_pos = sk.curPos;
-                if (next_mv)
-                {
-                    next_mv = sk.init_sock(sk.hostName, 1, pParam);
-                    dataBytes_used += sk.curPos;
-                    // cr->dataBytes++;
-                }
-                if (next_mv)
-                {
-                    if (sk.buff[9] == '2')
+                    int prev_pos = sk.curPos;
+                    if (next_mv)
                     {
-                        // where this page came from; needed for construction of relative links
-                        int numLinks;
-                        char* linkBuffer = parser->Parse(&sk.buff[prev_pos], sk.curPos - prev_pos, P.URLName, (int)strlen(P.URLName), &numLinks);
+                        next_mv = sk.init_sock(sk.hostName, 1, pParam);
+                        dataBytes_used += sk.curPos;
+                        // cr->dataBytes++;
+                    }
+                    if (next_mv)
+                    {
+                        if (sk.buff[9] == '2')
+                        {
+                            // where this page came from; needed for construction of relative links
+                            int numLinks;
+                            char* linkBuffer = parser->Parse(&sk.buff[prev_pos], sk.curPos - prev_pos, P.URLName, (int)strlen(P.URLName), &numLinks);
 
-                        // check for errors indicated by negative values
-                        if (numLinks < 0)
-                            numLinks = 0;
-                        links += numLinks;
-                        //cr->nLinks++;
+                            // check for errors indicated by negative values
+                            if (numLinks < 0)
+                                numLinks = 0;
+                            links += numLinks;
+                            //cr->nLinks++;
+                        }
                     }
                 }
             }
