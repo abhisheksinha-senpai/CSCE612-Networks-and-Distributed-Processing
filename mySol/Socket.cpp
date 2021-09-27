@@ -80,7 +80,6 @@ bool Socket::init_sock(const char* str, int x, LPVOID pParam)
 {
 	Crawler* cr = ((Crawler*)pParam);
 	WSADATA wsaData;
-
 	//Initialize WinSock; once per program run
 
 	WORD wVersionRequested = MAKEWORD(2, 2);
@@ -115,7 +114,7 @@ bool Socket::init_sock(const char* str, int x, LPVOID pParam)
 	{
 		DNSsuccess.insert(remote->h_addr);
 		if (prevSize < DNSsuccess.size())
-			InterlockedAdd(&(cr->DNSLookups), 1);
+			DNSLooked++;
 			//cr->DNSLookups++;
 		memcpy((char*)&(server.sin_addr), remote->h_addr, remote->h_length);
 	}
@@ -123,7 +122,7 @@ bool Socket::init_sock(const char* str, int x, LPVOID pParam)
 	prevSize = seenIPs.size();
 	seenIPs.insert(inet_addr(inet_ntoa(server.sin_addr)));
 	if (seenIPs.size() > prevSize)
-		InterlockedAdd(&cr->IPUnique, 1);
+		IPLooked++;
 		//cr->IPUnique++;
 
 	// setup the port # and protocol type
@@ -146,25 +145,25 @@ bool Socket::init_sock(const char* str, int x, LPVOID pParam)
 		return false;
 	}
 	if (strncmp(&buff[9], "2", 1) == 0 && x == 2)
-		InterlockedAdd(&cr->robot, 1);
+		robot_looked++;
 		//cr->robot++;
 
 	if (x == 1)
 	{
 		if (strncmp(&buff[9], "2", 1))
-			InterlockedAdd(&cr->http_check2, 1);
-			//cr->http_check2++;
+			http_check2++;
+		//cr->http_check2++;
 		else if (strncmp(&buff[9], "3", 1))
-			InterlockedAdd(&cr->http_check3, 1);
-			//cr->http_check3++;
+			http_check3++;
+		//cr->http_check3++;
 		else if (strncmp(&buff[9], "4", 1))
-			InterlockedAdd(&cr->http_check4, 1);
-			//cr->http_check4++;
+			http_check4++;
+		//cr->http_check4++;
 		else if (strncmp(&buff[9], "5", 1))
-			InterlockedAdd(&cr->http_check4, 1);
-			//cr->http_check5++;
+			http_check5++;
+		//cr->http_check5++;
 		else
-			InterlockedAdd(&cr->other, 1);
+			other++;
 			//cr->other++;
 	}
 

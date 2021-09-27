@@ -27,20 +27,6 @@ public:
 	LONG volatile QueueUsed = 0;
 	LONG volatile numberThreads = 0;
 	HANDLE hEvent;
-    /*std::atomic <long> nLinks = 0;
-	atomic<long>  Hostunique = 0;
-	atomic<long>  DNSLookups = 0;
-	atomic<long>  IPUnique = 0;
-	atomic<long> robot = 0;
-	atomic<long>  http_check2 = 0;
-	atomic<long>  http_check3 = 0;
-	atomic<long>  http_check4 = 0;
-	atomic<long> http_check5 = 0;
-	atomic<long>  other = 0;
-	atomic<long>  total_link = 0;
-	atomic<long>  dataBytes = 0;
-	atomic<long>  QueueUsed = 0;
-	atomic<long>  numberThreads = 0;*/
 	void Initialize(char* str);
 	bool Producer(char* fileName);
 };

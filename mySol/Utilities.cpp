@@ -8,6 +8,7 @@ struct msg {
 //concurrency::concurrent_queue<msg> Q;
 queue<msg> Q;
 CRITICAL_SECTION lpCriticalSection;
+clock_t start_time;
 
 bool Crawler::Producer(char *fileName)
 {
@@ -40,9 +41,39 @@ void Consumer(LPVOID pParam)
     Socket sk;
     msg P;
     HTMLParserBase* parser = new HTMLParserBase;
+    int queue_used=0;
+    int dataBytes_used=0;
+    int host_uni=0;
+    int links=0;
     while (1)
     {
         EnterCriticalSection(&lpCriticalSection);
+        InterlockedAdd(&cr->QueueUsed, queue_used);
+        InterlockedAdd(&cr->Hostunique, host_uni);
+        InterlockedAdd(&cr->dataBytes, dataBytes_used);
+        InterlockedAdd(&cr->nLinks, links);
+        
+        InterlockedAdd(&cr->DNSLookups, sk.DNSLooked);
+        InterlockedAdd(&cr->IPUnique, sk.IPLooked);
+        InterlockedAdd(&cr->robot, sk.robot_looked);
+        InterlockedAdd(&cr->http_check2, sk.http_check2);
+        InterlockedAdd(&cr->http_check3, sk.http_check3);
+        InterlockedAdd(&cr->http_check4, sk.http_check4);
+        InterlockedAdd(&cr->http_check5, sk.http_check5);
+        InterlockedAdd(&cr->other, sk.other);
+
+        queue_used = 0;
+        dataBytes_used = 0;
+        host_uni = 0;
+        links = 0;
+        sk.DNSLooked = 0;
+        sk.IPLooked = 0;
+        sk.robot_looked = 0;
+        sk.http_check2 = 0;
+        sk.http_check3 = 0;
+        sk.http_check4 = 0;
+        sk.http_check5 = 0;
+        sk.other = 0;
         if (Q.size() == 0)
         {
             SetEvent(cr->hEvent);
@@ -59,17 +90,18 @@ void Consumer(LPVOID pParam)
        /* if (Q.try_pop(P))
         {*/
         LeaveCriticalSection(&lpCriticalSection);
+        
         //first get the robots, which means flag==3
         bool next_mv = sk.Get(P.URLName, 3, true);
         if (next_mv)
         {
-            InterlockedAdd(&cr->QueueUsed, 1);
+            queue_used++;
             //cr->QueueUsed++;
             int prevSize = sk.seenHosts.size();
             sk.seenHosts.insert(sk.hostName);
             if (sk.seenHosts.size() > prevSize && next_mv)
             {
-                InterlockedAdd(&cr->Hostunique, 1);
+                host_uni++;
                 //cr->Hostunique++;
                 next_mv = sk.init_sock(sk.hostName, 2, pParam);
                 if (next_mv)
@@ -79,7 +111,7 @@ void Consumer(LPVOID pParam)
                 if (next_mv)
                 {
                     next_mv = sk.init_sock(sk.hostName, 1, pParam);
-                    InterlockedAdd(&cr->dataBytes, sk.curPos);
+                    dataBytes_used += sk.curPos;
                     // cr->dataBytes++;
                 }
                 if (next_mv)
@@ -93,7 +125,7 @@ void Consumer(LPVOID pParam)
                         // check for errors indicated by negative values
                         if (numLinks < 0)
                             numLinks = 0;
-                        InterlockedAdd(&cr->nLinks, numLinks);
+                        links += numLinks;
                         //cr->nLinks++;
                     }
                 }
@@ -105,7 +137,7 @@ void Consumer(LPVOID pParam)
     delete parser;
     return;
 }
-clock_t start_time;
+
 void stats(LPVOID pParam)
 {
     Crawler* cr = ((Crawler*)pParam);

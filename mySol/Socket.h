@@ -38,6 +38,15 @@ public:
 	char* pathpos = NULL;
 	char* query = NULL;
 
+	int DNSLooked;
+	int IPLooked;
+	int robot_looked;
+	int http_check2;
+	int http_check3;
+	int http_check4;
+	int http_check5;
+	int other;
+
 	Socket();										//default Constructor
 	bool init_sock(const char* str, int x, LPVOID pParam);				//Intialize socket
 	bool Read(int flag);								//Read from the sokcet
