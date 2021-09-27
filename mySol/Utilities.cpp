@@ -110,24 +110,27 @@ void Consumer(LPVOID pParam)
         sk.http_check4 = 0;
         sk.http_check5 = 0;
         sk.other = 0;
-        queue<msg>temp;
+       /* queue<msg>temp;
         int k = 0;
-        while (!Q.empty() && k < 50)
+        while (!Q.empty() && k < 15)
         {
             temp.push(Q.front());
             Q.pop();
             k++;
-        }
-        LeaveCriticalSection(&lpCriticalSection);
-        while (!temp.empty())
-        {
-            P = temp.front();
-            temp.pop();
+        }*/
+        //LeaveCriticalSection(&lpCriticalSection);
+        //while (!temp.empty())
+        //{
+            P = Q.front();
+            Q.pop();
             if (P.URLName == NULL)
+            {
+                LeaveCriticalSection(&lpCriticalSection);
                 continue;
+            }
             /* if (Q.try_pop(P))
              {*/
-
+            LeaveCriticalSection(&lpCriticalSection);
             //first get the robots, which means flag==3
             bool next_mv = sk.Get(P.URLName, 3, true);
             if (next_mv)
@@ -168,7 +171,7 @@ void Consumer(LPVOID pParam)
                     }
                 }
             }
-        }
+        //}
         //}
     }
     InterlockedAdd(&cr->numberThreads, -1);
@@ -182,6 +185,9 @@ void stats(LPVOID pParam)
     start_time = clock();
     clock_t time_req;
     float time_elapsed = 0;
+    clock_t prev_time = 0;
+    long prev_data = 0;
+    long prev_host = 0;
     while (1)
     {
         Sleep(2000);
@@ -193,10 +199,13 @@ void stats(LPVOID pParam)
             LeaveCriticalSection(&lpCriticalSection);
             break;
         }
-        time_elapsed = (time_req - start_time) / CLOCKS_PER_SEC;
-        printf("[%3d] %d  Q:%6d  E:%6d  H:%6d  D:%6d  I:%5d  R:%5d  C:%5d  L:%4dK\n", (int)time_elapsed, cr->numberThreads, Q.size(), cr->QueueUsed, cr->Hostunique, cr->DNSLookups, cr->IPUnique, cr->robot, (cr->http_check2+ cr->http_check3+ cr->http_check4+ cr->http_check5+ cr->other), cr->nLinks/1000);
-        float pps = (float)(cr->Hostunique)/ time_elapsed;
-        printf("*** crawling %3.1f pps @ %3.1f Mbps\n", pps, (float)cr->dataBytes*8 /(1000000* time_elapsed));
+        time_elapsed = (time_req - prev_time) / CLOCKS_PER_SEC;
+        printf("[%3d] %d  Q:%6d  E:%6d  H:%6d  D:%6d  I:%5d  R:%5d  C:%5d  L:%4dK\n", (int)(time_req-start_time)/CLOCKS_PER_SEC, cr->numberThreads, Q.size(), cr->QueueUsed, cr->Hostunique, cr->DNSLookups, cr->IPUnique, cr->robot, (cr->http_check2+ cr->http_check3+ cr->http_check4+ cr->http_check5+ cr->other), cr->nLinks/1000);
+        float pps = (float)(cr->Hostunique - prev_host)/ time_elapsed;
+        printf("*** crawling %3.1f pps @ %3.5f Mbps\n", pps, (float)(cr->dataBytes-prev_data)*8 /(1000000* (time_elapsed)));
+        prev_time = clock();
+        prev_data = cr->dataBytes;
+        prev_host = cr->Hostunique;
         LeaveCriticalSection(&lpCriticalSection);
     }
     return;
