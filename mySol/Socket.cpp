@@ -6,7 +6,7 @@
 #include "pch.h"
 #include "Socket.h"
 
-#define INTIAL_BUF_SIZE 4096
+#define INTIAL_BUF_SIZE 512
 
 Socket::Socket()
 {
@@ -114,8 +114,9 @@ bool Socket::init_sock(const char* str, int x, LPVOID pParam)
 	else // take the first IP address and copy into sin_addr
 	{
 		DNSsuccess.insert(remote->h_addr);
-		if(prevSize< DNSsuccess.size())
+		if (prevSize < DNSsuccess.size())
 			InterlockedAdd(&(cr->DNSLookups), 1);
+			//cr->DNSLookups++;
 		memcpy((char*)&(server.sin_addr), remote->h_addr, remote->h_length);
 	}
 
@@ -123,6 +124,7 @@ bool Socket::init_sock(const char* str, int x, LPVOID pParam)
 	seenIPs.insert(inet_addr(inet_ntoa(server.sin_addr)));
 	if (seenIPs.size() > prevSize)
 		InterlockedAdd(&cr->IPUnique, 1);
+		//cr->IPUnique++;
 
 	// setup the port # and protocol type
 	server.sin_family = AF_INET;
@@ -143,21 +145,27 @@ bool Socket::init_sock(const char* str, int x, LPVOID pParam)
 		WSACleanup();
 		return false;
 	}
-	if (strncmp(&buff[9], "2", 1) == 0 && x==2)
+	if (strncmp(&buff[9], "2", 1) == 0 && x == 2)
 		InterlockedAdd(&cr->robot, 1);
+		//cr->robot++;
 
 	if (x == 1)
 	{
 		if (strncmp(&buff[9], "2", 1))
 			InterlockedAdd(&cr->http_check2, 1);
+			//cr->http_check2++;
 		else if (strncmp(&buff[9], "3", 1))
 			InterlockedAdd(&cr->http_check3, 1);
+			//cr->http_check3++;
 		else if (strncmp(&buff[9], "4", 1))
 			InterlockedAdd(&cr->http_check4, 1);
+			//cr->http_check4++;
 		else if (strncmp(&buff[9], "5", 1))
 			InterlockedAdd(&cr->http_check4, 1);
+			//cr->http_check5++;
 		else
 			InterlockedAdd(&cr->other, 1);
+			//cr->other++;
 	}
 
 	return true;
@@ -165,7 +173,7 @@ bool Socket::init_sock(const char* str, int x, LPVOID pParam)
 
 bool Socket::Get(char* str, int flag, bool parse)
 {
-	int ret_status;
+	int ret_status = 0;
 	if (strncmp(str, "http://", 7) != 0)
 		return false;
 

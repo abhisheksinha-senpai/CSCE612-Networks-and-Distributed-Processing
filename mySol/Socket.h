@@ -10,8 +10,8 @@
 #include "Utilities.h"
 
 #define MAX_HOST_LEN		256
-#define MAX_URL_LEN			2048
-#define MAX_REQUEST_LEN		2048
+#define MAX_URL_LEN			4096
+#define MAX_REQUEST_LEN		256
 
 
 class Socket

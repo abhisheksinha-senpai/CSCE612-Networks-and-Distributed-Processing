@@ -27,8 +27,10 @@ using namespace std;
 #include <ppl.h>
 #include <vector>
 #include <thread>
-#include <concurrent_queue.h>
+//#include <concurrent_queue.h>
+#include <queue>
 #include <winnt.h>
 #include <Windows.h>
 #include <synchapi.h>
+#include <atomic>
 #endif //PCH_H

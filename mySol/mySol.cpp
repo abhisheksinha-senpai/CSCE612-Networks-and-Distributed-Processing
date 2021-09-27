@@ -8,7 +8,8 @@
 
 extern struct msg;
 extern CRITICAL_SECTION lpCriticalSection;
-extern concurrency::concurrent_queue<msg> Q;
+//extern concurrency::concurrent_queue<msg> Q;
+extern queue<msg> Q;
 
 int main(int argc, char** argv)
 {
@@ -25,9 +26,12 @@ int main(int argc, char** argv)
     }
     handles[numTh] = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)stats, &cr, 0, NULL);
 
-    WaitForMultipleObjects(numTh+1, handles, TRUE, INFINITE);
     for (int i = 0; i < numTh+1; i++)
+    {
+        WaitForSingleObject(handles[i], INFINITE);
         CloseHandle(handles[i]);
+    }
+
 
     return 0;
 }

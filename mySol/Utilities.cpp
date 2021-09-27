@@ -5,8 +5,8 @@ struct msg {
     char URLName[MAX_URL_LEN];
 };
 
-concurrency::concurrent_queue<msg> Q;
-
+//concurrency::concurrent_queue<msg> Q;
+queue<msg> Q;
 CRITICAL_SECTION lpCriticalSection;
 
 bool Crawler::Producer(char *fileName)
@@ -40,20 +40,30 @@ void Consumer(LPVOID pParam)
     Socket sk;
     msg P;
     HTMLParserBase* parser = new HTMLParserBase;
-    while (!Q.empty())
+    while (1)
     {
-        if (Q.try_pop(P))
-        {
+        EnterCriticalSection(&lpCriticalSection);
+        if (Q.size() == 0)
+            break;
+        P = Q.front();
+        if (P.URLName == NULL)
+            continue;
+        Q.pop();
+       /* if (Q.try_pop(P))
+        {*/
+            LeaveCriticalSection(&lpCriticalSection);
             //first get the robots, which means flag==3
             bool next_mv = sk.Get(P.URLName, 3, true);
             if (next_mv)
             {
                 InterlockedAdd(&cr->QueueUsed, 1);
+                //cr->QueueUsed++;
                 int prevSize = sk.seenHosts.size();
                 sk.seenHosts.insert(sk.hostName);
                 if (sk.seenHosts.size() > prevSize && next_mv)
                 {
                     InterlockedAdd(&cr->Hostunique, 1);
+                    //cr->Hostunique++;
                     next_mv = sk.init_sock(sk.hostName, 2, pParam);
                     if (next_mv)
                         next_mv = sk.Get(P.URLName, 2, false);
@@ -63,6 +73,7 @@ void Consumer(LPVOID pParam)
                     {
                         next_mv = sk.init_sock(sk.hostName, 1, pParam);
                         InterlockedAdd(&cr->dataBytes, sk.curPos);
+                       // cr->dataBytes++;
                     }
                     if (next_mv)
                     {
@@ -76,15 +87,16 @@ void Consumer(LPVOID pParam)
                             if (numLinks < 0)
                                 numLinks = 0;
                             InterlockedAdd(&cr->nLinks, numLinks);
+                            //cr->nLinks++;
                         }
                     }
                 }
             }
-        }
+        //}
+        LeaveCriticalSection(&lpCriticalSection);
     }
-    EnterCriticalSection(&lpCriticalSection);
     InterlockedAdd(&cr->numberThreads, -1);
-    LeaveCriticalSection(&lpCriticalSection);
+    delete parser;
 }
 
 void stats(LPVOID pParam)
@@ -99,7 +111,7 @@ void stats(LPVOID pParam)
         time_req = clock();
         EnterCriticalSection(&lpCriticalSection);
         time_elapsed = (time_req - start_time) / CLOCKS_PER_SEC;
-        printf("[%3d] %d  Q:%6d  E:%6d  H:%6d  D:%6d  I:%5d  R:%5d  C:%5d  L:%4dK\n", (int)time_elapsed, cr->numberThreads, Q.unsafe_size(), cr->QueueUsed, cr->Hostunique, cr->DNSLookups, cr->IPUnique, cr->robot, (cr->http_check2+ cr->http_check3+ cr->http_check4+ cr->http_check5+ cr->other), cr->nLinks/1000);
+        printf("[%3d] %d  Q:%6d  E:%6d  H:%6d  D:%6d  I:%5d  R:%5d  C:%5d  L:%4dK\n", (int)time_elapsed, cr->numberThreads, Q.size(), cr->QueueUsed, cr->Hostunique, cr->DNSLookups, cr->IPUnique, cr->robot, (cr->http_check2+ cr->http_check3+ cr->http_check4+ cr->http_check5+ cr->other), cr->nLinks/1000);
         float pps = (float)(cr->Hostunique)/ time_elapsed;
         printf("*** crawling %3.1f pps @ %3.1f Mbps\n", pps, (float)cr->dataBytes*8 /(1000000* time_elapsed));
         LeaveCriticalSection(&lpCriticalSection);
