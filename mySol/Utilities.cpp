@@ -93,7 +93,6 @@ void Consumer(LPVOID pParam)
                 }
             }
         //}
-        LeaveCriticalSection(&lpCriticalSection);
     }
     InterlockedAdd(&cr->numberThreads, -1);
     delete parser;
@@ -105,11 +104,13 @@ void stats(LPVOID pParam)
     clock_t start_time = clock();
     clock_t time_req;
     float time_elapsed = 0;
-    while (!Q.empty())
+    while (1)
     {
         Sleep(2000);
         time_req = clock();
         EnterCriticalSection(&lpCriticalSection);
+        if (Q.size() == 0)
+            break;
         time_elapsed = (time_req - start_time) / CLOCKS_PER_SEC;
         printf("[%3d] %d  Q:%6d  E:%6d  H:%6d  D:%6d  I:%5d  R:%5d  C:%5d  L:%4dK\n", (int)time_elapsed, cr->numberThreads, Q.size(), cr->QueueUsed, cr->Hostunique, cr->DNSLookups, cr->IPUnique, cr->robot, (cr->http_check2+ cr->http_check3+ cr->http_check4+ cr->http_check5+ cr->other), cr->nLinks/1000);
         float pps = (float)(cr->Hostunique)/ time_elapsed;
