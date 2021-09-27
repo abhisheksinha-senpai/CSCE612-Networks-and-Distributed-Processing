@@ -26,6 +26,7 @@ public:
 	LONG volatile dataBytes = 0;
 	LONG volatile QueueUsed = 0;
 	LONG volatile numberThreads = 0;
+	HANDLE hEvent;
     /*std::atomic <long> nLinks = 0;
 	atomic<long>  Hostunique = 0;
 	atomic<long>  DNSLookups = 0;
@@ -48,4 +49,5 @@ public:
 
 void Consumer(LPVOID pParam);
 void stats(LPVOID pParam);
+void final_stat(LPVOID pParam);
 
