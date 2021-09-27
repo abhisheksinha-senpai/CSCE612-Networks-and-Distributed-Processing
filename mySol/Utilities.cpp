@@ -147,8 +147,8 @@ void stats(LPVOID pParam)
     while (1)
     {
         Sleep(2000);
-        time_req = clock();
         EnterCriticalSection(&lpCriticalSection);
+        time_req = clock();
         if (Q.size() == 0)
         {
             SetEvent(cr->hEvent);
