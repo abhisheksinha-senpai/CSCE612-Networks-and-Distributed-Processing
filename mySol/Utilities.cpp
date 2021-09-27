@@ -46,6 +46,7 @@ void Consumer(LPVOID pParam)
         if (Q.size() == 0)
         {
             SetEvent(cr->hEvent);
+            LeaveCriticalSection(&lpCriticalSection);
             break;
         }
         P = Q.front();
@@ -119,6 +120,7 @@ void stats(LPVOID pParam)
         if (Q.size() == 0)
         {
             SetEvent(cr->hEvent);
+            LeaveCriticalSection(&lpCriticalSection);
             break;
         }
         time_elapsed = (time_req - start_time) / CLOCKS_PER_SEC;
@@ -134,7 +136,6 @@ void stats(LPVOID pParam)
 void final_stat(LPVOID pParam)
 {
     Crawler* cr = ((Crawler*)pParam);
-    clock_t start_time = clock();
     clock_t time_req;
     float time_elapsed = 0;
 

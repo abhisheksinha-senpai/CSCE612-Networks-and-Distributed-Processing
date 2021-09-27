@@ -41,8 +41,6 @@ public:
 	atomic<long>  dataBytes = 0;
 	atomic<long>  QueueUsed = 0;
 	atomic<long>  numberThreads = 0;*/
-	HANDLE	finished;
-	HANDLE	eventQuit;
 	void Initialize(char* str);
 	bool Producer(char* fileName);
 };

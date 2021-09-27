@@ -15,7 +15,7 @@ extern queue<msg> Q;
 int main(int argc, char** argv)
 {
     Crawler cr;
-    int numTh = atoi(argv[1]) + 1;
+    int numTh = atoi(argv[1]) + 2;
     HANDLE* handles = new HANDLE[numTh + 2];
     InitializeCriticalSection(&lpCriticalSection);
     cr.Producer(argv[2]);
@@ -27,6 +27,7 @@ int main(int argc, char** argv)
     }
     handles[numTh] = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)stats, &cr, 0, NULL);
     handles[numTh+1] = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)final_stat, &cr, 0, NULL);
+
 
     for (int i = 0; i < numTh+2; i++)
     {
