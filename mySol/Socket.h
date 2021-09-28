@@ -40,12 +40,13 @@ public:
 
 	int DNSLooked = 0;
 	int IPLooked = 0;
-	int robot_looked= 0;
-	int http_check2= 0;
-	int http_check3=0;
-	int http_check4=0;
-	int http_check5=0;
-	int other=0;
+	int page_co = 0;
+	int robot_looked = 0;
+	int http_check2 = 0;
+	int http_check3 = 0;
+	int http_check4 = 0;
+	int http_check5 = 0;
+	int other = 0;
 
 	Socket();										//default Constructor
 	bool init_sock(const char* str, int x, LPVOID pParam);				//Intialize socket

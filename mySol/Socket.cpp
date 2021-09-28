@@ -18,8 +18,7 @@ Socket::Socket()
 
 bool Socket::Read(int flag)
 {
-	// set timeout to 10 seconds
-	timeval timeout = { 10.0L, 0.0L };
+
 	//return value from select call
 	int ret = 0;
 	clock_t time_req;
@@ -27,18 +26,21 @@ bool Socket::Read(int flag)
 	allocatedSize = INTIAL_BUF_SIZE;
 	THRESHOLD = 0.75 * INTIAL_BUF_SIZE;
 	curPos = 0;
+	int bytes = 0;
 	while (true)
 	{
 		// Put only the current socket in the fd_set to check of readability
 		fd_set fd = { 1,{sock} };
+		// set timeout to 10 seconds
+		timeval timeout = { 10.0L, 0.0L };
 		clock_t time_req1 = clock();
 		if (((float)(time_req1 - time_req) / CLOCKS_PER_SEC) > 2.0)
 			break;
 		// check to see readablility of sockets as of now
 		if ((ret = select(0, &fd, NULL, NULL, &timeout)) != SOCKET_ERROR) {
 			// new data available; now read the next segment
-			int bytes = recv(sock, buff + curPos, allocatedSize - curPos, 0);
-			if (bytes == SOCKET_ERROR) 
+			bytes = recv(sock, buff + curPos, allocatedSize - curPos, 0);
+			if (bytes == SOCKET_ERROR)
 				break;
 
 			if (bytes == 0)
@@ -68,9 +70,9 @@ bool Socket::Read(int flag)
 			}
 
 		}
-		else if (ret == 0) 
+		else if (ret == 0)
 			break;
-		else 
+		else
 			break;
 	}
 	return false;
@@ -115,7 +117,7 @@ bool Socket::init_sock(const char* str, int x, LPVOID pParam)
 		DNSsuccess.insert(remote->h_addr);
 		if (prevSize < DNSsuccess.size())
 			DNSLooked++;
-			//cr->DNSLookups++;
+		//cr->DNSLookups++;
 		memcpy((char*)&(server.sin_addr), remote->h_addr, remote->h_length);
 	}
 
@@ -123,9 +125,9 @@ bool Socket::init_sock(const char* str, int x, LPVOID pParam)
 	seenIPs.insert(inet_addr(inet_ntoa(server.sin_addr)));
 	if (seenIPs.size() > prevSize)
 		IPLooked++;
-		//cr->IPUnique++;
+	//cr->IPUnique++;
 
-	// setup the port # and protocol type
+// setup the port # and protocol type
 	server.sin_family = AF_INET;
 	server.sin_port = htons(80);		// host-to-network flips the byte order
 
@@ -144,28 +146,30 @@ bool Socket::init_sock(const char* str, int x, LPVOID pParam)
 		WSACleanup();
 		return false;
 	}
-	if (strncmp(&buff[9], "2", 1) == 0 && x == 2)
-		robot_looked++;
-		//cr->robot++;
-
-	if (x == 1)
+	else
 	{
-		if (strncmp(&buff[9], "2", 1))
-			http_check2++;
-		//cr->http_check2++;
-		else if (strncmp(&buff[9], "3", 1))
-			http_check3++;
-		//cr->http_check3++;
-		else if (strncmp(&buff[9], "4", 1))
-			http_check4++;
-		//cr->http_check4++;
-		else if (strncmp(&buff[9], "5", 1))
-			http_check5++;
-		//cr->http_check5++;
-		else
-			other++;
-			//cr->other++;
+		page_co++;
 	}
+	if ((buff[9] == '2') && x == 2)
+		robot_looked++;
+	//cr->robot++;
+
+	if (buff[9] == '2')
+		http_check2++;
+	//cr->http_check2++;
+	else if (buff[9] == '3')
+		http_check3++;
+	//cr->http_check3++;
+	else if (buff[9] == '4')
+		http_check4++;
+	//cr->http_check4++;
+	else if (buff[9] == '5')
+		http_check5++;
+	//cr->http_check5++;
+	else
+		other++;
+
+	//cr->other++;
 
 	return true;
 }

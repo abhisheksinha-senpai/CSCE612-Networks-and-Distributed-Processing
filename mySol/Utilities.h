@@ -10,28 +10,27 @@
 
 class Crawler {
 private:
-	
+
 public:
-	LONG volatile nLinks = 0;
-	LONG volatile Hostunique = 0;
-	LONG volatile DNSLookups = 0;
-	LONG volatile IPUnique = 0;
-	LONG volatile robot = 0;
-	LONG volatile http_check2 = 0;
-	LONG volatile http_check3 = 0;
-	LONG volatile http_check4 = 0;
-	LONG volatile http_check5 = 0;
-	LONG volatile other = 0;
-	LONG volatile total_link = 0;
-	LONG volatile dataBytes = 0;
-	LONG volatile QueueUsed = 0;
-	LONG volatile numberThreads = 0;
+	long long volatile nLinks = 0;
+	long volatile Hostunique = 0;
+	long volatile DNSLookups = 0;
+	long volatile IPUnique = 0;
+	long volatile robot = 0;
+	long volatile http_check2 = 0;
+	long volatile http_check3 = 0;
+	long volatile http_check4 = 0;
+	long volatile http_check5 = 0;
+	long volatile other = 0;
+	long long volatile total_link = 0;
+	long long volatile dataBytes = 0;
+	long volatile QueueUsed = 0;
+	long volatile numberThreads = 0;
+	long volatile pages = 0;
 	HANDLE hEvent;
-	void Initialize(char* str);
 	bool Producer(char* fileName);
 };
 
 void Consumer(LPVOID pParam);
 void stats(LPVOID pParam);
-void final_stat(LPVOID pParam);
 

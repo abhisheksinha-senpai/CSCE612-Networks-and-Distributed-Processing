@@ -20,20 +20,20 @@ int main(int argc, char** argv)
     InitializeCriticalSection(&lpCriticalSection);
     cr.Producer(argv[2]);
     InterlockedAdd(&cr.numberThreads, numTh);
-    cr.hEvent = CreateEventA(NULL, true, false, NULL);
-    for (int i = 0; i < numTh-2; i++)
+    // ResetEvent(cr.hEvent);
+    for (int i = 0; i < numTh - 1; i++)
     {
         handles[i] = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)Consumer, &cr, 0, NULL);
     }
-    handles[numTh-2] = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)stats, &cr, 0, NULL);
-    handles[numTh-1] = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)final_stat, &cr, 0, NULL);
+    handles[numTh - 1] = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)stats, &cr, 0, NULL);
 
+    //WaitForMultipleObjects(numTh, handles, TRUE, INFINITE);
 
     for (int i = 0; i < numTh; i++)
     {
         WaitForSingleObject(handles[i], INFINITE);
         CloseHandle(handles[i]);
     }
-   
+
     return 0;
 }
