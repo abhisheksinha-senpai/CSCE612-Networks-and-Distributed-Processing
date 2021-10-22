@@ -1,0 +1,136 @@
+
+C:\Users\abhis\Documents\Classes\Fall21\CSCE612_Networks_and_Distributed_processing\Homework\SourceCode\mySol\x64\DebugDNS_client_n_query.exe random0.irclsl 127.0.0.1
+Lookup      : random0.irclsl
+Query       : random0.irclsl  type 1 TXID 0X1234
+Server      : 127.0.0.1
+********************************
+Attempt 1 with 32 bytes... response in 1 ms with 32 bytes
+        TXID 0X1234, flags 0X8405, questions 1, answers 0, authority 0, additional 0
+        failed with Rcode = 5
+
+C:\Users\abhis\Documents\Classes\Fall21\CSCE612_Networks_and_Distributed_processing\Homework\SourceCode\mySol\x64\DebugDNS_client_n_query.exe random3.irclsl 127.0.0.1
+Lookup      : random3.irclsl
+Query       : random3.irclsl  type 1 TXID 0X1234
+Server      : 127.0.0.1
+********************************
+Attempt 1 with 32 bytes... response in 1 ms with 32 bytes
+        TXID 0X1234, flags 0X8405, questions 1, answers 0, authority 0, additional 0
+        failed with Rcode = 5
+
+C:\Users\abhis\Documents\Classes\Fall21\CSCE612_Networks_and_Distributed_processing\Homework\SourceCode\mySol\x64\DebugDNS_client_n_query.exe random5.irclsl 127.0.0.1
+Lookup      : random5.irclsl
+Query       : random5.irclsl  type 1 TXID 0X1234
+Server      : 127.0.0.1
+********************************
+Attempt 1 with 32 bytes... response in 1 ms with 32 bytes
+        TXID 0X1234, flags 0X8405, questions 1, answers 0, authority 0, additional 0
+        failed with Rcode = 5
+
+C:\Users\abhis\Documents\Classes\Fall21\CSCE612_Networks_and_Distributed_processing\Homework\SourceCode\mySol\x64\DebugDNS_client_n_query.exe random6.irclsl 127.0.0.1
+Lookup      : random6.irclsl
+Query       : random6.irclsl  type 1 TXID 0X1234
+Server      : 127.0.0.1
+********************************
+Attempt 1 with 32 bytes... response in 0 ms with 32 bytes
+        TXID 0X1234, flags 0X8405, questions 1, answers 0, authority 0, additional 0
+        failed with Rcode = 5
+
+C:\Users\abhis\Documents\Classes\Fall21\CSCE612_Networks_and_Distributed_processing\Homework\SourceCode\mySol\x64\DebugDNS_client_n_query.exe random1.irclsl 127.0.0.1
+Lookup      : random1.irclsl
+Query       : random1.irclsl  type 1 TXID 0X1234
+Server      : 127.0.0.1
+********************************
+Attempt 1 with 32 bytes... response in 1 ms with 32 bytes
+        TXID 0X1234, flags 0X8405, questions 1, answers 0, authority 0, additional 0
+        failed with Rcode = 5
+
+C:\Users\abhis\Documents\Classes\Fall21\CSCE612_Networks_and_Distributed_processing\Homework\SourceCode\mySol\x64\DebugDNS_client_n_query.exe random7.irclsl 127.0.0.1
+Lookup      : random7.irclsl
+Query       : random7.irclsl  type 1 TXID 0X1234
+Server      : 127.0.0.1
+********************************
+Attempt 1 with 32 bytes... response in 1 ms with 32 bytes
+        TXID 0X1234, flags 0X8405, questions 1, answers 0, authority 0, additional 0
+        failed with Rcode = 5
+
+
+C:\Users\abhis\Documents\Classes\Fall21\CSCE612_Networks_and_Distributed_processing\Homework\SourceCode\mySol\x64\DebugDNS_client_n_query.exe random4.irl 127.0.0.1
+Lookup      : random4.irl
+Query       : random4.irl  type 1 TXID 0X1234
+Server      : 127.0.0.1
+********************************
+Attempt 1 with 29 bytes... response in 1 ms with 43 bytes
+        TXID 0X1234, flags 0X8400, questions 1, answers 1, authority 0, additional 11
+        succeeded with Rcode = 0
+        ------------[questions] ------------
+                random4.irl type 1 class 1
+        ------------[answers] ------------
+        random.irl
+++      invalid record: truncated RR answer header
+
+C:\Users\abhis\Documents\Classes\Fall21\CSCE612_Networks_and_Distributed_processing\Homework\SourceCode\mySol\x64\DebugDNS_client_n_query.exe random4.irl 127.0.0.1
+Lookup      : random4.irl
+Query       : random4.irl  type 1 TXID 0X1234
+Server      : 127.0.0.1
+********************************
+Attempt 1 with 29 bytes... response in 1 ms with 322 bytes
+        TXID 0X1234, flags 0X8400, questions 1, answers 1, authority 0, additional 11
+        succeeded with Rcode = 0
+        ------------[questions] ------------
+                random4.irl type 1 class 1
+        ------------[answers] ------------
+        random.irl A 1.1.1.1. TTL = 30
+        ------------[additional] ------------
+        Episode.IV A 2.2.2.2. TTL = 30
+        A.NEW.HOPE A 2.2.2.2. TTL = 30
+        It.is.a.period.of.civil.war A 2.2.2.2. TTL = 30
+        Rebel.spaceships A 2.2.2.2. TTL = 30
+        striking.from.a.hidden.base A 2.2.2.2. TTL = 30
+        have.won.their.first.victory A 2.2.2.2. TTL = 30
+        against.the.evil.Galactic.Empire A 2.2.2.2. TTL = 30
+        Du
+ ++     invalid record: truncated name
+
+C:\Users\abhis\Documents\Classes\Fall21\CSCE612_Networks_and_Distributed_processing\Homework\SourceCode\mySol\x64\DebugDNS_client_n_query.exe random4.irl 127.0.0.1
+Lookup      : random4.irl
+Query       : random4.irl  type 1 TXID 0X1234
+Server      : 127.0.0.1
+********************************
+Attempt 1 with 29 bytes... response in 1 ms with 289 bytes
+        TXID 0X1234, flags 0X8400, questions 1, answers 1, authority 0, additional 11
+        succeeded with Rcode = 0
+        ------------[questions] ------------
+                random4.irl type 1 class 1
+        ------------[answers] ------------
+        random.irl A 1.1.1.1. TTL = 30
+        ------------[additional] ------------
+        Episode.IV A 2.2.2.2. TTL = 30
+        A.NEW.HOPE A 2.2.2.2. TTL = 30
+        It.is.a.period.of.civil.war A 2.2.2.2. TTL = 30
+        Rebel.spaceships A 2.2.2.2. TTL = 30
+        striking.from.a.hidden.base A 2.2.2.2. TTL = 30
+        have.won.their.first.victory A 2.2.2.2. TTL = 30
+        against.the.evil.Ga
+ ++     invalid record: truncated name
+
+C:\Users\abhis\Documents\Classes\Fall21\CSCE612_Networks_and_Distributed_processing\Homework\SourceCode\mySol\x64\DebugDNS_client_n_query.exe random4.irl 127.0.0.1
+Lookup      : random4.irl
+Query       : random4.irl  type 1 TXID 0X1234
+Server      : 127.0.0.1
+********************************
+Attempt 1 with 29 bytes... response in 1 ms with 314 bytes
+        TXID 0X1234, flags 0X8400, questions 1, answers 1, authority 0, additional 11
+        succeeded with Rcode = 0
+        ------------[questions] ------------
+                random4.irl type 1 class 1
+        ------------[answers] ------------
+        random.irl A 1.1.1.1. TTL = 30
+        ------------[additional] ------------
+        Episode.IV A 2.2.2.2. TTL = 30
+        A.NEW.HOPE A 2.2.2.2. TTL = 30
+        It.is.a.period.of.civil.war A 2.2.2.2. TTL = 30
+        Rebel.spaceships A 2.2.2.2. TTL = 30
+        striking.from.a.hidden.base A 2.2.2.2. TTL = 30
+        have.won.their.first.victory A 2.2.2.2. TTL = 30
+        against.the.evil.Galactic.Empire A
+++      invalid record:RR value length stretches the answer beyond packet
