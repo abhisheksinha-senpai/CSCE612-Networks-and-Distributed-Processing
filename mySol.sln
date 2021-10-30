@@ -7,6 +7,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DNS_client_n_query", "DNS_c
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "mySol", "mySol\mySol.vcxproj", "{CD28FB37-7D80-435D-8020-0C957D936681}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UDP_Transport_layer_service", "UDP_Transport_layer_service\UDP_Transport_layer_service.vcxproj", "{C6CC7EE7-12A5-4286-8B8F-450D2F8C9492}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -31,6 +33,14 @@ Global
 		{CD28FB37-7D80-435D-8020-0C957D936681}.Release|x64.Build.0 = Release|x64
 		{CD28FB37-7D80-435D-8020-0C957D936681}.Release|x86.ActiveCfg = Release|Win32
 		{CD28FB37-7D80-435D-8020-0C957D936681}.Release|x86.Build.0 = Release|Win32
+		{C6CC7EE7-12A5-4286-8B8F-450D2F8C9492}.Debug|x64.ActiveCfg = Debug|x64
+		{C6CC7EE7-12A5-4286-8B8F-450D2F8C9492}.Debug|x64.Build.0 = Debug|x64
+		{C6CC7EE7-12A5-4286-8B8F-450D2F8C9492}.Debug|x86.ActiveCfg = Debug|Win32
+		{C6CC7EE7-12A5-4286-8B8F-450D2F8C9492}.Debug|x86.Build.0 = Debug|Win32
+		{C6CC7EE7-12A5-4286-8B8F-450D2F8C9492}.Release|x64.ActiveCfg = Release|x64
+		{C6CC7EE7-12A5-4286-8B8F-450D2F8C9492}.Release|x64.Build.0 = Release|x64
+		{C6CC7EE7-12A5-4286-8B8F-450D2F8C9492}.Release|x86.ActiveCfg = Release|Win32
+		{C6CC7EE7-12A5-4286-8B8F-450D2F8C9492}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
