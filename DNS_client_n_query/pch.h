@@ -16,5 +16,6 @@
 #include <cstring>
 #include  <WS2tcpip.h>
 #include "time.h"
-
+#include <stdlib.h>
+#include <stdio.h>
 #endif //PCH_H

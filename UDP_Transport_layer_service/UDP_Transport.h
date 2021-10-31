@@ -1,4 +1,6 @@
 #pragma once
+#include "pch.h"
+
 #define MAGIC_PORT 22345 // receiver listens on this port 
 #define MAX_PKT_SIZE (1500-28) // maximum UDP packet size accepted by receiver
 
@@ -9,10 +11,26 @@
 #define INVALID_NAME 3 // ss.Open() with targetHost that has no DNS entry 
 #define FAILED_SEND 4 // sendto() failed in kernel 
 #define TIMEOUT 5 // timeout after all retx attempts are exhausted 
-#define FAILED_RECV 6 // recvfrom() failed in kernel
+#define FAILED_RECV 6 
 
 #define FORWARD_PATH 0 
 #define RETURN_PATH 1 
+
+#define MAGIC_PROTOCOL 0x8311AA
+
+#define SYN_ATTEMPTS 3
+#define FIN_ATTEMPTS 5
+
+#pragma pack(push,1)
+class Flags {
+public:
+	DWORD reserved : 5; // must be zero 
+	DWORD SYN : 1;
+	DWORD ACK : 1;
+	DWORD FIN : 1;
+	DWORD magic : 24;
+	Flags() { memset(this, 0, sizeof(*this)); magic = MAGIC_PROTOCOL; }
+};
 
 class SenderDataHeader {
 public:
@@ -41,14 +59,4 @@ public:
 	SenderDataHeader sdh;
 	LinkProperties lp;
 };
-
-#define MAGIC_PROTOCOL 0x8311AA 
-class Flags {
-public:
-	DWORD reserved : 5; // must be zero 
-	DWORD SYN : 1;
-	DWORD ACK : 1;
-	DWORD FIN : 1;
-	DWORD magic : 24;
-	Flags() { memset(this, 0, sizeof(*this)); magic = MAGIC_PROTOCOL; }
-};
+#pragma pack(pop)
