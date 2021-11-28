@@ -18,3 +18,9 @@
 #include <cstring>
 #include  <WS2tcpip.h>
 #include "time.h"
+#include <winnt.h>
+#include <synchapi.h>
+#include <atomic>
+#include <vector>
+#include <queue>
+#include <minwindef.h>

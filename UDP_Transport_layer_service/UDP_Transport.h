@@ -12,6 +12,7 @@
 #define FAILED_SEND 4 // sendto() failed in kernel 
 #define TIMEOUT 5 // timeout after all retx attempts are exhausted 
 #define FAILED_RECV 6 
+#define RETRANSMIT 7
 
 #define FORWARD_PATH 0 
 #define RETURN_PATH 1 
@@ -20,6 +21,8 @@
 
 #define SYN_ATTEMPTS 3
 #define FIN_ATTEMPTS 5
+#define RETRANSMIT_ATTEMPTS 3
+#define RETRANSMIT_ATTEMPTS_PKT 50
 
 #pragma pack(push,1)
 class Flags {
@@ -60,3 +63,7 @@ public:
 	LinkProperties lp;
 };
 #pragma pack(pop)
+
+void Stats(LPVOID pParam);
+UINT WorkerRun(LPVOID pParam);
+//int TXRX_helper(SenderSocket &ss);
