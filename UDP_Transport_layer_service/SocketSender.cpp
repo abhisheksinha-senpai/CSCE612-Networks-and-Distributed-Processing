@@ -2,7 +2,6 @@
 #include "SenderSocket.h"
 
 unsigned long long int last_size = 0;
-int duplicates;
 
 int SenderSocket::Open(char* target, int magic_port, int sender_window_size, LinkProperties& lp)
 {
@@ -16,14 +15,18 @@ int SenderSocket::Open(char* target, int magic_port, int sender_window_size, Lin
 	memcpy(mytarget, target, strlen(target) + 1);
 	myport = magic_port;
 	Estimated_RTO = max(1, 2 * lp.RTT);
-	EstimatedRTT = 0.0;
+	EstimatedRTT = lp.RTT;
 	devRTT = 0.0;
 	int count = 0;
 	windowSize = sender_window_size;
 	pending_pkts = new Packet[windowSize];
 	retx_pkts = new bool[windowSize];
-	memset(retx_pkts, 0, windowSize);
+	retx_cnts = new int[windowSize];
+	istransmitted = new bool[windowSize];
+	memset(retx_pkts, 0, windowSize * sizeof(bool));
 	memset(pending_pkts, 0, windowSize*sizeof(Packet));
+	memset(retx_cnts, 0, windowSize * sizeof(int));
+	memset(istransmitted, 0, windowSize * sizeof(bool));
 	clock_t end, before_send, temp = clock();
 	while (count++ < SYN_ATTEMPTS)
 	{
@@ -115,7 +118,6 @@ SenderSocket::SenderSocket()
 	errorQuit = CreateEvent(NULL, true, false, NULL);
 	sendFinish = CreateEvent(NULL, true, false, NULL);
 	socketReceiveReady = CreateEvent(NULL, false, false, NULL);
-	duplicates = 0;
 }
 
 int SenderSocket::Transport_Sender(char *target, int magic_port)
@@ -194,17 +196,17 @@ int SenderSocket::Close()
 				printf("[ %.3f]  --> failed recvfrom with %d\n", ((float)(end - start) / CLOCKS_PER_SEC), WSAGetLastError());
 				return FAILED_RECV;
 			}
-			end = clock();
 			DWORD check = cs.CRC32((unsigned char*)userBuf, last_size);
 			if (recevied_header.flags.ACK == 1 && recevied_header.flags.FIN == 1)
 			{
+				end = clock();
 				sendBasenumber = recevied_header.ackSeq;
 				printf("[ %.3f]  <-- FIN-ACK %d window %X\n", ((float)(end - start) / CLOCKS_PER_SEC), recevied_header.ackSeq, recevied_header.recvWnd);
 				checksum = check;
 				SetEvent(printQuit);
 				int st = WaitForSingleObject(handles_thread_stat, INFINITE);
 				CloseHandle(handles_thread_stat);
-
+				printf("Main:  transfer finished in %.3f sec, %.3f Kbps, checksum %X\n", ((float)((float)end - (float)start) / CLOCKS_PER_SEC), (8 * dwordbufferSize) / (1024 * (float)((float)sendend - (float)sendstart) / CLOCKS_PER_SEC), checksum);
 				return STATUS_OK;
 			}
 		}
@@ -254,6 +256,9 @@ SenderSocket::~SenderSocket()
 {
 	free(mytarget);
 	free(pending_pkts);
+	free(retx_pkts);
+	free(retx_cnts);
+	free(istransmitted);
 	closesocket(sock);
 	WSACleanup();
 }
@@ -292,7 +297,7 @@ UINT WorkerRun(LPVOID pParam)
 		cur_time = ((double)clock() - ss->start) / CLOCKS_PER_SEC;
 		if (ss->sendBasenumber != ss->nextSeqnumber)
 		{
-			timeout = max(1000 * (ss->timerexpire - cur_time), 0);
+			timeout = 1000 * (ss->timerexpire - cur_time);
 		}
 		else
 		{
@@ -305,16 +310,18 @@ UINT WorkerRun(LPVOID pParam)
 		{
 		case WAIT_TIMEOUT:	
 		{
-			if (ss->retx_count == RETRANSMIT_ATTEMPTS_PKT)
+			if (ss->retx_cnts[ss->sendBasenumber % ss->windowSize] == RETRANSMIT_ATTEMPTS_PKT)
 			{
 				printf("[ %.3f]  Maximum retransmissions reached\n");
 				SetEvent(ss->errorQuit);
 				return TIMEOUT;
 			}
 
+			ss->istransmitted[ss->sendBasenumber % ss->windowSize] = false;
 			ss->timerexpire = cur_time + ss->Estimated_RTO;
 			ss->pending_pkts[ss->sendBasenumber % ss->windowSize].txTime = cur_time;
 			ss->status = sendto(ss->sock, ss->pending_pkts[ss->sendBasenumber % ss->windowSize].pkt, ss->pending_pkts[ss->sendBasenumber % ss->windowSize].size + sizeof(SenderDataHeader), 0, (struct sockaddr*)&(ss->server), sizeof(ss->server));
+
 			if (ss->status == SOCKET_ERROR)
 			{
 				endtime = clock();
@@ -323,9 +330,9 @@ UINT WorkerRun(LPVOID pParam)
 				return FAILED_SEND;
 			}
 			ss->retransmit_count++;
-			ss->retx_count++;
 			ss->retx_pkts [ss->sendBasenumber % ss->windowSize]= true;
 			ss->timerexpire = cur_time + ss->Estimated_RTO;
+			ss->retx_cnts[ss->sendBasenumber % ss->windowSize]++;
 			break;
 		}
 		case WAIT_OBJECT_0:
@@ -342,7 +349,6 @@ UINT WorkerRun(LPVOID pParam)
 		}
 		case WAIT_OBJECT_0 +1:
 		{
-			duplicates = 0;
 			ss->pending_pkts[ss->nextToSend % ss->windowSize].txTime = cur_time;
 			int status = sendto(ss->sock, ss->pending_pkts[ss->nextToSend % ss->windowSize].pkt, ss->pending_pkts[ss->nextToSend % ss->windowSize].size + sizeof(SenderDataHeader), 0, (struct sockaddr*)&(ss->server), sizeof(ss->server));
 			if (ss->status == SOCKET_ERROR && WSAGetLastError() != WSAEWOULDBLOCK)
@@ -356,7 +362,6 @@ UINT WorkerRun(LPVOID pParam)
 			if (ss->sendBasenumber == ss->nextToSend)
 				ss->timerexpire = cur_time + ss->Estimated_RTO;
 			ss->nextToSend++;
-			ss->retx_count = 0;
 			break;
 		}
 		case WAIT_OBJECT_0 + 2:
@@ -392,8 +397,7 @@ int SenderSocket::ReceiveACK(void)
 
 	if (sendBasenumber == recevied_header.ackSeq)
 	{
-		duplicates++;
-		retx_pkts[sendBasenumber % windowSize] = true;
+		retx_cnts[sendBasenumber % windowSize]++;
 	}
 	if(recevied_header.ackSeq > sendBasenumber)
 	{
@@ -406,17 +410,15 @@ int SenderSocket::ReceiveACK(void)
 		}
 		
 		timerexpire = cur_time + Estimated_RTO;
-
 		sendBasenumber = recevied_header.ackSeq;
-		duplicates = 0;
-		retx_count = 0;
 		newReleased = sendBasenumber + min(windowSize, recevied_header.recvWnd) - lastReleased;
 		ReleaseSemaphore(queueEmpty, newReleased, NULL);
 		lastReleased += newReleased;
 	}
-	if (duplicates == 3)
+	if (retx_cnts[sendBasenumber % windowSize]==4  && !istransmitted[sendBasenumber % windowSize])
 	{
-		duplicates = 0;
+		retx_pkts[sendBasenumber % windowSize] = true;
+		istransmitted[sendBasenumber % windowSize] = true;
 		fast_tx_count++;
 		timerexpire = cur_time + Estimated_RTO;
 		pending_pkts[sendBasenumber % windowSize].txTime = cur_time;

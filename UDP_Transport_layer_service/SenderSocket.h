@@ -32,7 +32,6 @@ class SenderSocket
 	double Estimated_RTO = 1.0;
 	unsigned char UDP_buf[1500];
 	int retransmit_count = 0;
-	int retx_count = 0;
 
 	int Transport_Sender(char* target, int magic_port);
 public:
@@ -66,8 +65,12 @@ public:
 	float EstimatedRTT = 0.0;
 	int lastReleased;
 
+	long dwordbufferSize;
+
 	Packet *pending_pkts;
 	bool* retx_pkts;
+	bool* istransmitted;
+	int* retx_cnts;
 	char* userBuf;
 public:
 	SenderSocket();
