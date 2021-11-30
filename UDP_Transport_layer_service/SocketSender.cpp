@@ -22,11 +22,11 @@ int SenderSocket::Open(char* target, int magic_port, int sender_window_size, Lin
 	pending_pkts = new Packet[windowSize];
 	retx_pkts = new bool[windowSize];
 	retx_cnts = new int[windowSize];
-	istransmitted = new bool[windowSize];
+	//istransmitted = new bool[windowSize];
 	memset(retx_pkts, 0, windowSize * sizeof(bool));
 	memset(pending_pkts, 0, windowSize*sizeof(Packet));
 	memset(retx_cnts, 0, windowSize * sizeof(int));
-	memset(istransmitted, 0, windowSize * sizeof(bool));
+	//memset(istransmitted, 0, windowSize * sizeof(bool));
 	clock_t end, before_send, temp = clock();
 	while (count++ < SYN_ATTEMPTS)
 	{
@@ -206,7 +206,8 @@ int SenderSocket::Close()
 				SetEvent(printQuit);
 				int st = WaitForSingleObject(handles_thread_stat, INFINITE);
 				CloseHandle(handles_thread_stat);
-				printf("Main:  transfer finished in %.3f sec, %.3f Kbps, checksum %X\n", ((float)((float)end - (float)start) / CLOCKS_PER_SEC), (8 * dwordbufferSize) / (1024 * (float)((float)sendend - (float)sendstart) / CLOCKS_PER_SEC), checksum);
+				double deno = 1024*(((double)sendend - start) / (double)CLOCKS_PER_SEC);
+				printf("Main:  transfer finished in %.3f sec, %.3f Kbps, checksum %X\n", ((float)((float)sendend - (float)sendstart) / CLOCKS_PER_SEC), (8 * (double)dwordbufferSize) / deno, checksum);
 				return STATUS_OK;
 			}
 		}
@@ -258,7 +259,7 @@ SenderSocket::~SenderSocket()
 	free(pending_pkts);
 	free(retx_pkts);
 	free(retx_cnts);
-	free(istransmitted);
+	//free(istransmitted);
 	closesocket(sock);
 	WSACleanup();
 }
@@ -317,7 +318,7 @@ UINT WorkerRun(LPVOID pParam)
 				return TIMEOUT;
 			}
 
-			ss->istransmitted[ss->sendBasenumber % ss->windowSize] = false;
+			//ss->istransmitted[ss->sendBasenumber % ss->windowSize] = false;
 			ss->timerexpire = cur_time + ss->Estimated_RTO;
 			ss->pending_pkts[ss->sendBasenumber % ss->windowSize].txTime = cur_time;
 			ss->status = sendto(ss->sock, ss->pending_pkts[ss->sendBasenumber % ss->windowSize].pkt, ss->pending_pkts[ss->sendBasenumber % ss->windowSize].size + sizeof(SenderDataHeader), 0, (struct sockaddr*)&(ss->server), sizeof(ss->server));
@@ -415,10 +416,10 @@ int SenderSocket::ReceiveACK(void)
 		ReleaseSemaphore(queueEmpty, newReleased, NULL);
 		lastReleased += newReleased;
 	}
-	if (retx_cnts[sendBasenumber % windowSize]==4  && !istransmitted[sendBasenumber % windowSize])
+	if (retx_cnts[sendBasenumber % windowSize]==3)//  && !istransmitted[sendBasenumber % windowSize])
 	{
 		retx_pkts[sendBasenumber % windowSize] = true;
-		istransmitted[sendBasenumber % windowSize] = true;
+		//istransmitted[sendBasenumber % windowSize] = true;
 		fast_tx_count++;
 		timerexpire = cur_time + Estimated_RTO;
 		pending_pkts[sendBasenumber % windowSize].txTime = cur_time;

@@ -50,6 +50,7 @@ int main(int argc, char **argv)
     UINT64 byteBufferSize = dwordBufSize << 2; // convert to bytes
     UINT64 off = 0; // current position in buffer
     ss.sendstart = clock();
+    ss.dwordbufferSize = byteBufferSize;
     long pkt_cnt = 0;
     while (off < byteBufferSize)
     {
@@ -72,8 +73,8 @@ int main(int argc, char **argv)
         exit(EXIT_FAILURE);
     }
     
-    printf("Main:  transfer finished in %.3f sec, %.3f Kbps, checksum %X\n", ((float)((float)clock() - (float)temp) / CLOCKS_PER_SEC), (8 * byteBufferSize)/ (1024*(float)((float)ss.sendend - (float)temp) / CLOCKS_PER_SEC), ss.checksum);
-    printf("Main: estRTT %.3f, ideal rate %.2f Kbps\n", ss.EstimatedRTT, (8* byteBufferSize)/ (1024*((float)((float)end - (float)ss.sendstart) / CLOCKS_PER_SEC)));
+    //printf("Main:  transfer finished in %.3f sec, %.3f Kbps, checksum %X\n", ((float)((float)clock() - (float)temp) / CLOCKS_PER_SEC), (8 * byteBufferSize)/ (1024*(float)((float)ss.sendend - (float)temp) / CLOCKS_PER_SEC), ss.checksum);
+    printf("Main: estRTT %f, ideal rate %.3lf Kbps\n", ss.EstimatedRTT, (8* (double)byteBufferSize)/ (1024 * ((double)pkt_cnt / ss.windowSize) * (double)ss.EstimatedRTT));
     exit(EXIT_SUCCESS);
 }
 
@@ -92,7 +93,7 @@ void Stats(LPVOID pParam)
             cur_time = (((double)clock() - ss->start) / CLOCKS_PER_SEC);
             sendtime = (((double)clock() - ss->sendstart) / CLOCKS_PER_SEC);
             if (cur_time % 2 == 0)
-                printf("[%d] B\t %ld ( %.1f MB)  N    %d T %d F %d W %d S %.3f Mbps RTT %f\n", cur_time, ss->sendBasenumber, (float)(last_size) / (1024 * 1024), ss->nextSeqnumber, ss->retransmit_count, ss->fast_tx_count,min(ss->windowSize,ss->rcvWindsize), (float)(last_size * 8) / (sendtime * 1024 * 1024), ss->EstimatedRTT);
+                printf("[%d] B\t %ld ( %.1f MB)  N    %d T %d F %d W %d S %.3f Mbps RTT %f\n", cur_time, ss->sendBasenumber, (float)(last_size) / (1024 * 1024), ss->nextSeqnumber, ss->retransmit_count, ss->fast_tx_count, min(ss->windowSize,ss->rcvWindsize), (float)(last_size * 8) / (sendtime * 1024 * 1024), ss->EstimatedRTT);
             //LeaveCriticalSection(&lpCriticalSection);
         }
         else

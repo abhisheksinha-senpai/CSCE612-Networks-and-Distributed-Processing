@@ -30,6 +30,7 @@ class SenderSocket
 	int myport;
 	char* mytarget;
 	double Estimated_RTO = 1.0;
+	double EstimatedRTT = 0.0;
 	unsigned char UDP_buf[1500];
 	int retransmit_count = 0;
 
@@ -62,14 +63,13 @@ public:
 	int fast_tx_count = 0;
 	int windowSize;
 	int rcvWindsize;
-	float EstimatedRTT = 0.0;
 	int lastReleased;
 
-	long dwordbufferSize;
+	double dwordbufferSize;
 
 	Packet *pending_pkts;
 	bool* retx_pkts;
-	bool* istransmitted;
+	//bool* istransmitted;
 	int* retx_cnts;
 	char* userBuf;
 public:
