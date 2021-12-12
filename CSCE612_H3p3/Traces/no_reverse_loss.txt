@@ -1,0 +1,20 @@
+Main:  sender W = 300, RTT 0.200 sec, loss 0 / 0.0000, link 10 Mbps
+Main:  initializing DWORD array with 2^23 elements... done in 24 ms
+Main:  connected to s3.irl.cs.tamu.edu in 0.210 sec, pkt size 1472 bytes
+[2] B	 256 ( 0.7 MB)  N    512 T 0 F 0 W 256 S 2.859 Mbps RTT 0.272633
+[4] B	 1932 ( 3.1 MB)  N    2232 T 0 F 0 W 300 S 6.233 Mbps RTT 0.353106
+[6] B	 3630 ( 5.5 MB)  N    3930 T 0 F 0 W 300 S 7.316 Mbps RTT 0.353408
+[8] B	 5328 ( 7.9 MB)  N    5628 T 0 F 0 W 300 S 7.858 Mbps RTT 0.353691
+[10] B	 7026 ( 10.2 MB)  N    7326 T 0 F 0 W 300 S 8.183 Mbps RTT 0.353054
+[12] B	 8724 ( 12.6 MB)  N    9024 T 0 F 0 W 300 S 8.399 Mbps RTT 0.353243
+[14] B	 10423 ( 15.0 MB)  N    10723 T 0 F 0 W 300 S 8.555 Mbps RTT 0.353373
+[16] B	 12121 ( 17.3 MB)  N    12421 T 0 F 0 W 300 S 8.671 Mbps RTT 0.353131
+[18] B	 13820 ( 19.7 MB)  N    14120 T 0 F 0 W 300 S 8.762 Mbps RTT 0.353066
+[20] B	 15520 ( 22.1 MB)  N    15820 T 0 F 0 W 300 S 8.835 Mbps RTT 0.353342
+[22] B	 17219 ( 24.5 MB)  N    17519 T 0 F 0 W 300 S 8.894 Mbps RTT 0.353022
+[24] B	 18919 ( 26.8 MB)  N    19219 T 0 F 0 W 300 S 8.944 Mbps RTT 0.353393
+[26] B	 20619 ( 29.2 MB)  N    20919 T 0 F 0 W 300 S 8.987 Mbps RTT 0.353045
+[28] B	 22318 ( 31.6 MB)  N    22618 T 0 F 0 W 300 S 9.023 Mbps RTT 0.353557
+[ 29.240]  <-- FIN-ACK 22920 window D70096AB
+Main:  transfer finished in 29.007 sec, 9130.756 Kbps, checksum D70096AB
+Main: estRTT 0.353, ideal rate 9724.168 Kbps
