@@ -24,10 +24,13 @@ class ParallelTrace
 	bool finished=false;
 	std::string targetIP;
 
+
+
 	HANDLE socketReceiveReady;
 	HANDLE workerthread_DNS[40];
+#ifndef BACTH_MODE
 	bool workerQuits[40] = {false};
-
+#endif
 	int SendPacket(int hopNumber);
 	int ReceivePacket();
 	void MakePacket(int hopNumber);
@@ -35,7 +38,6 @@ class ParallelTrace
 	std::priority_queue<std::pair<double, int>, std::vector<std::pair<double, int>>, compareFunc> future_retx;
 
 public:
-	std::queue<std::string> websites;
 	ParallelTrace();
 	void Traceroute(ULONG IP);
 	void ICMP_Tx(int hopNumber);

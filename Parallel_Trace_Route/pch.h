@@ -7,6 +7,7 @@
 #ifndef PCH_H
 #define PCH_H
 
+#undef BACTH_MODE 
 // add headers that you want to pre-compile here
 #pragma comment(lib, "Ws2_32.lib")
 

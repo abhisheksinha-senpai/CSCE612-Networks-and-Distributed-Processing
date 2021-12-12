@@ -4,9 +4,17 @@
 using namespace std;
 double PC_freq_usec=0;
 
-extern std::string* source_cname;
+#ifndef BATCH_MDOE
+
+extern std::string source_cname[];
 extern ULONG* router_ip;
 int hops[40];
+
+#endif // !BATCH_MDOE
+#ifdef BATCH_MODE
+CRITICAL_SECTION lpCriticalSection;
+#endif
+std::queue<std::string> websites;
 
 ParallelTrace::ParallelTrace()
 {
@@ -31,7 +39,7 @@ ParallelTrace::ParallelTrace()
     EstimatedRTT = new double[40]{0};
     retx_count = new int[40]();
     source_ip = new std::string[40]();
-    source_cname = new std::string[40];
+    //source_cname = new std::string[40];
     sent_time = new int64_t[40]{0};
     Estimated_RTO = new double[40]{ DEFAULT_TIMEOUT };
     router_ip = new ULONG[40]{ 0 };
@@ -112,7 +120,11 @@ void ParallelTrace::Traceroute(ULONG IP)
     }
     while (!finished)
     {
+#ifndef BATCH_MODE
         int ret = WaitForSingleObject(socketReceiveReady, 30000);
+#else
+        int ret = WaitForSingleObject(socketReceiveReady, 2000);
+#endif // !BATCH_MODE
         if (ret == WAIT_TIMEOUT)
             break;
         try
@@ -125,6 +137,7 @@ void ParallelTrace::Traceroute(ULONG IP)
             throw wsaError;
         }
     }
+#ifndef BATCH_MODE
     int count = 30;
     while (count > -1)
     {
@@ -135,8 +148,7 @@ void ParallelTrace::Traceroute(ULONG IP)
     for (i = 0; i < 40; i++)
         CloseHandle(workerthread_DNS[i]);
     printTraceRoute();
-    
-    
+#endif // !BATCH_MODE   
 }
 
 void ParallelTrace::ICMP_Tx(int hopNumber)
@@ -157,8 +169,14 @@ void ParallelTrace::ICMP_Tx(int hopNumber)
 ULONG ParallelTrace::GetNextIP()
 {
     sockaddr_in server_T;
+#ifdef BATCH_MODE
+    EnterCriticalSection(&lpCriticalSection);
+#endif
     std::string target = websites.front();
     websites.pop();
+#ifdef BATCH_MODE
+    LeaveCriticalSection(&lpCriticalSection);
+#endif
     DWORD IP_add = inet_addr(target.c_str());
     hostent* remote;
     server_T.sin_family = AF_INET;
@@ -225,7 +243,10 @@ int ParallelTrace::SendPacket(int hopNumber)
     DynamicTimeout(hopNumber);
     //printf("%lf\t%d\n", Estimated_RTO[hopNumber], hopNumber);
     future_retx.push(std::make_pair(sent_time[hopNumber] + Estimated_RTO[hopNumber], hopNumber));
+#ifndef BATCH_MODE
     hops[hopNumber] = hopNumber;
+#endif // !BATCH_MODE
+
     retx_count[hopNumber]++;
     return STATUS_OK;
 }
@@ -255,13 +276,13 @@ int ParallelTrace::ReceivePacket()
             {
                 EstimatedRTT[(orig_icmp_hdr->seq)] = 1000000 * (GetTicks() - start_time) / PC_freq_usec - sent_time[(orig_icmp_hdr->seq)];
                 router_ip[(orig_icmp_hdr->seq)] = router_ip_hdr->source_ip;
-                source_ip[(orig_icmp_hdr->seq)] = getIP(router_ip_hdr->source_ip);
-
                 received[(orig_icmp_hdr->seq)] = true;
-
+#ifndef BACTH_MODE        
                if(!workerQuits[(orig_icmp_hdr->seq)])
                     workerthread_DNS[(orig_icmp_hdr->seq)] = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)Worker_DNS, &hops[(orig_icmp_hdr->seq)], 0, NULL);
                 workerQuits[(orig_icmp_hdr->seq)] = true;
+                source_ip[(orig_icmp_hdr->seq)] = getIP(router_ip_hdr->source_ip);
+#endif
                 finish_index = max(finish_index, orig_icmp_hdr->seq);
                 if (source_ip[(orig_icmp_hdr->seq)] == targetIP || orig_icmp_hdr->seq == 31)
                 {
@@ -278,7 +299,7 @@ ParallelTrace::~ParallelTrace()
     delete[] EstimatedRTT;
     delete[] retx_count;
     delete[] source_ip;
-    delete[] source_cname;
+    //delete[] source_cname;
     delete[] sent_time;
     delete[] Estimated_RTO;
     delete[] router_ip;

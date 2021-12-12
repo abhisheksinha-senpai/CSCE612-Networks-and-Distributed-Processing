@@ -1,8 +1,10 @@
 #include "pch.h"
 
-std::string* source_cname;
+#ifndef BACTH_MODE
+std::string source_cname[40];
 ULONG* router_ip;
 extern int hops[];
+#endif
 
 u_short ip_checksum(u_short* buffer, int size)
 {
@@ -21,6 +23,8 @@ u_short ip_checksum(u_short* buffer, int size)
 	return (u_short) (~cksum);
 }
 
+#ifndef BACTH_MODE
+
 std::string DNSLookup(ULONG IP)
 {
     hostent* hp;
@@ -28,7 +32,11 @@ std::string DNSLookup(ULONG IP)
     ip.S_un.S_addr = IP;
     hp = gethostbyaddr((const char*)&ip, sizeof ip, AF_INET);
     if (hp == NULL)
-        return "<no DNS entry>";
+    {
+        std::string temp = "<no DNS entry>";
+        return temp;
+    }
+        
     else
     {
         std::string temp;
@@ -50,11 +58,13 @@ std::string getIP(ULONG IP)
         
 }
 
-UINT Worker_DNS(LPVOID pParam)
+void Worker_DNS(LPVOID pParam)
 {
     int* addr = (int*)pParam;
-    //printf("%d\n", *addr);
-    source_cname[*addr] = DNSLookup(router_ip[*addr]);
+    int value = *addr;
+    ULONG val = router_ip[value];
+    source_cname[value] = DNSLookup(val);
 
-    return 0;
+    return ;
 }
+#endif

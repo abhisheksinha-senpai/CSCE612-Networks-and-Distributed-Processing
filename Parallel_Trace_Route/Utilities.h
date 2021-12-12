@@ -47,10 +47,7 @@
 #define SOCKASSO_ERROR -99
 
 u_short ip_checksum(u_short* buffer, int size);
-std::string getIP(ULONG IP);
-UINT Worker_DNS(LPVOID pParam);
 
-extern int hops[40];
 
 struct compareFunc
 {
@@ -67,4 +64,8 @@ static inline int64_t GetTicks()
 	return ticks.QuadPart;
 }
 
+#ifndef BATCH_MODE
 std::string DNSLookup(ULONG IP);
+std::string getIP(ULONG IP);
+void Worker_DNS(LPVOID pParam);
+#endif
