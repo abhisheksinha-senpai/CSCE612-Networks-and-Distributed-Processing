@@ -290,6 +290,8 @@ ParallelTrace::~ParallelTrace()
     closesocket(sock);
     // some cleanup 
     WSACleanup();
+    double curTime = 1000000 * (GetTicks() - start_time) / PC_freq_usec;
+    printf("Total execution time: %.3f ms", curTime/1000);
 }
 void ParallelTrace::DynamicTimeout(int hopNumber)
 {

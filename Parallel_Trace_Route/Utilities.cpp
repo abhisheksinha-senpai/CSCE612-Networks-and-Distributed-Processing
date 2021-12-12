@@ -55,5 +55,6 @@ UINT Worker_DNS(LPVOID pParam)
     int* addr = (int*)pParam;
     //printf("%d\n", *addr);
     source_cname[*addr] = DNSLookup(router_ip[*addr]);
+
     return 0;
 }
